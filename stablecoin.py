@@ -5,7 +5,7 @@
 # Dont forget to approve TAU to con_pyusd or tau_to_pyusd() exchange function doesnt work or just use the Swap dApp UI
 # Difference to LUSD is that PYUSD is collateralized by TAU on this chain instead of USDT
 # 2% protocol fee only on tau_to_pyusd() or pyusd_to_tau() - no extra fee on rocketswap but limited liq on rocketswap
-# Stablecoin Swap available at https://ipfs.io/ipfs/Qmb9QLNnh5YhaQHv7MUrSh1MNcXqsx3tKSoXLSHqAtbz93 !!!
+# No Slippage Stablecoin Swap available at TODO: insert link here !!!
 
 import currency as tau
 import con_rocketswap_official_v1_1 as rocketswap
