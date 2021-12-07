@@ -1,0 +1,35 @@
+.dice {
+    display: grid;
+    height: 4em;
+    width:4em;
+    padding: 0.3em;
+    background: black;
+    margin-bottom: 1em;
+    grid-template-columns: 1em 1em 1em;
+    row-template-column:1em 1em 1em;
+    grid-column-gap: 0.25em;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1em;
+  
+  }
+  
+  .dot {
+    background: white;
+    border-radius: 2em;
+    height: 1em;
+    width: 1em;
+    background-clip: padding-box;
+    -moz-background-clip: padding; 
+    -webkit-background-clip: padding-box;
+    transition: all 0.5s;
+  }
+  
+  .dot-off {
+    background: black;
+  }
+  #game{
+  width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}

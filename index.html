@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="crosschainer" />
+    <title>Python USD - The stable coin on Lamden</title>
+    <link rel="icon" type="image/png" href="https://ipfs.io/ipfs/QmcgFubybi6bNnAma9TyCK4gNJiuvzrbKASkAPhixNqGLV?filename=logo.png" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <link href="dice.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <main>
+        <nav class="py-2 bg-light border-bottom">
+            <div class="container d-flex flex-wrap">
+                <ul class="nav me-auto">
+                    <li id="address_span" class="d-none nav-item"><span class="nav-link px-0">Your Address: <span
+                                id="wallet_address" class="text-truncate d-block float-end ps-1"
+                                style="max-width: 5em;"></span></span></li>
+                </ul>
+                <ul class="nav">
+                    <li class="nav-item"><a href="#" id="connect_wallet" class="btn btn-primary text-uppercase">Connect
+                            your Wallet</a></li>
+
+                </ul>
+            </div>
+        </nav>
+        <div class="container ">
+            <header class="py-3 mb-4 border-bottom">
+                <div class="d-flex flex-wrap justify-content-center">
+                    <a href="/"
+                        class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none">
+                        <span class="fs-4" style="font-weight: 700 !important">Python USD</span>
+                    </a>
+                    <div class="col-12 col-lg-auto mb-3 mb-lg-0">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a href="#" class="nav-link" aria-current="page">Stable Swap</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <div>
+                <div class="mb-3">
+                <h5 class="fw-bold">What is PYUSD</h5>
+                <p>Python USD is an experimental algorithmic stable coin on Lamden.<br><a href="https://www.tauhq.com/contracts/con_pyusd_v3" target="_blank">Read the Contract</a></p>
+                </div>
+                <h5 class="fw-bold">Stable Swap</h5>
+                <div class="text-center pt-4" id="connect-first-game">Please connect your Lamden wallet first..</div>
+                <div class="text-center pt-4 d-none" id="game">
+                    <form>
+                        <div class="mb-3">
+                            <select class="form-select" id="from" aria-label="">
+                                <option value="TAU">TAU</option>
+                                <option value="PYUSD">PYUSD</option>
+                              </select><br>
+                            <input type="text" class="form-control" id="guess" aria-describedby="guess">
+                            
+
+                          </div>
+                          <div class="mb-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                          </svg>
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-select" id="to" aria-label="">
+                                <option value="PYUSD">PYUSD</option>
+                                <option value="TAU">TAU</option>
+                                
+                              </select><br>
+                          <input type="text" class="form-control" id="bet_amount" aria-describedby="betAmount">
+                          
+                          
+                        </div>
+                        <div class="mb-3">
+                            <div id="guessHelp" class="form-text" >You currently have <a href="#" id="tau_balance">loading..</a> TAU.</div>
+                            <div id="betAmountHelp" class="form-text">You currently have <a href="#" id="pyusd_balance">loading..</a> PYUSD.</div><br>
+                        <span class="form-text">Current Exchange Rate:</span> <b class="form-text" id="exchange_rate">loading..</b> <span class="form-text">TAU/USD</span><br>
+                        <span class="form-text">TAU Locked:</span> <b class="form-text" id="reserve">loading..</b> <span class="form-text">TAU</span><br>
+                        <span class="form-text">Backing Ratio:</span> <b class="form-text" id="backing_ratio">loading..</b> <span class="form-text"> (If over >= 1, its fully collateralized)</span><br>
+                        <span class="form-text">Current Supply:</span> <b class="form-text" id="pyusd_issued">loading..</b> <span class="form-text">PYUSD</span><br>
+                        <span class="form-text">Protocol Fee:</span> <b class="form-text">2%</b></span>
+                        <span class="form-text">Slippage:</span> <b class="form-text">0% (Fixed)</b></span>
+                    </div>
+                        <a href="#" id="swap" class="btn btn-primary">Swap</a>
+                      </form>
+                </div>
+            </div>
+
+
+            <footer class="pt-3 mt-4 text-muted border-top">
+                
+
+            </footer>
+        </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://ipfs.io/ipfs/QmcaGt2JHBVPSH8AAyAx2MLXMdJvC5BYyXKMvpzoRPHaZZ?filename=dapp.js"></script>
+</body>
+
+</html>
