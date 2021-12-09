@@ -5,7 +5,7 @@ const detail = JSON.stringify({
     appName: 'Python USD dApp',
     version: '1.0.0',
     logo: 'logo.png',
-    contractName: 'con_pyusd_v4',
+    contractName: 'con_pusd',
     networkType: 'mainnet',
 })
 
@@ -33,9 +33,9 @@ document.addEventListener('lamdenWalletInfo', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pyusd_v4/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pusd/balances?key=" + address
         ).done(function (data__) {
-            $("#pyusd_balance").html(
+            $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
             );
         });
@@ -49,7 +49,7 @@ document.addEventListener('lamdenWalletInfo', (response) => {
             );
             //Refresh Reserve
         $.get(
-            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pyusd_v4"
+            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pusd"
         ).done(function (data__) {
             reserve = data__["value"]["__fixed__"];
             $("#reserve").html(
@@ -57,10 +57,10 @@ document.addEventListener('lamdenWalletInfo', (response) => {
             );
             //Refresh Supply
             $.get(
-                "https://masternode-01.lamden.io/contracts/con_pyusd_v4/total_supply"
+                "https://masternode-01.lamden.io/contracts/con_pusd/total_supply"
             ).done(function (data__) {
                 supply = data__["value"]["__fixed__"];
-                $("#pyusd_issued").html(
+                $("#pusd_issued").html(
                     Number(supply).toLocaleString("en")
                 );
                 $("#backing_ratio").html(
@@ -88,7 +88,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         console.log(response);
         if($("#to").val() == "TAU"){
             const detail = JSON.stringify({
-                contractName: 'con_pyusd_v4',
+                contractName: 'con_pusd',
                 methodName: 'pyusd_to_tau',
                 networkType: 'mainnet',
                 kwargs: {
@@ -101,9 +101,9 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
             document.dispatchEvent(new CustomEvent('lamdenWalletSendTx', {detail}));
             return
         }
-        if($("#to").val() == "PYUSD"){
+        if($("#to").val() == "PUSD"){
             const detail = JSON.stringify({
-                contractName: 'con_pyusd_v4',
+                contractName: 'con_pusd',
                 methodName: 'tau_to_pyusd',
                 networkType: 'mainnet',
                 kwargs: {
@@ -134,17 +134,17 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pyusd_v4/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pusd/balances?key=" + address
         ).done(function (data__) {
-            $("#pyusd_balance").html(
+            $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
             );
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pyusd_v4/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pusd_v4/balances?key=" + address
         ).done(function (data__) {
-            $("#pyusd_balance").html(
+            $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
             );
         });
@@ -158,7 +158,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
             );
             //Refresh Reserve
         $.get(
-            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pyusd_v4"
+            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pusd"
         ).done(function (data__) {
             reserve = data__["value"]["__fixed__"];
             $("#reserve").html(
@@ -166,10 +166,10 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
             );
             //Refresh Supply
             $.get(
-                "https://masternode-01.lamden.io/contracts/con_pyusd_v4/total_supply"
+                "https://masternode-01.lamden.io/contracts/con_pusd/total_supply"
             ).done(function (data__) {
                 supply = data__["value"]["__fixed__"];
-                $("#pyusd_issued").html(
+                $("#pusd_issued").html(
                     Number(supply).toLocaleString("en")
                 );
                 $("#backing_ratio").html(
@@ -205,20 +205,20 @@ $("#connect_wallet").click(function () {
 
 $( "#from" ).change(function() {
     if($("#from").val() == "TAU"){
-        $("#to").val("PYUSD");
+        $("#to").val("PUSD");
         $("#bet_amount").val(Number($("#guess").val() / $("#exchange_rate").text()).toFixed(8));
     }
-    if($("#from").val() == "PYUSD"){
+    if($("#from").val() == "PUSD"){
         $("#to").val("TAU");
         $("#bet_amount").val(Number($("#guess").val() * $("#exchange_rate").text()).toFixed(8));
     }
 });
 $( "#to" ).change(function() {
     if($("#to").val() == "TAU"){
-        $("#from").val("PYUSD");
+        $("#from").val("PUSD");
         $("#bet_amount").val(Number($("#guess").val() * $("#exchange_rate").text()).toFixed(8));
     }
-    if($("#to").val() == "PYUSD"){
+    if($("#to").val() == "PUSD"){
         $("#from").val("TAU");
         $("#bet_amount").val(Number($("#guess").val() / $("#exchange_rate").text()).toFixed(8));
     }
@@ -228,7 +228,7 @@ $( "#guess" ).change(function() {
     if($("#to").val() == "TAU"){
         $("#bet_amount").val(Number($("#guess").val() * $("#exchange_rate").text()).toFixed(8));
     }
-    if($("#to").val() == "PYUSD"){
+    if($("#to").val() == "PUSD"){
         $("#bet_amount").val(Number($("#guess").val() / $("#exchange_rate").text()).toFixed(8));
     }
 });
@@ -237,7 +237,7 @@ $( "#bet_amount" ).change(function() {
     if($("#to").val() == "TAU"){
         $("#guess").val(Number($("#bet_amount").val() / $("#exchange_rate").text()).toFixed(8));
     }
-    if($("#to").val() == "PYUSD"){
+    if($("#to").val() == "PUSD"){
         $("#guess").val(Number($("#bet_amount").val() * $("#exchange_rate").text()).toFixed(8));
     }
 });
@@ -250,25 +250,25 @@ $("#swap").click(function () {
     $("#swap").text("Swapping (Waiting for Transactions)..");
     if($("#to").val() == "TAU"){
         const detail = JSON.stringify({
-            contractName: 'con_pyusd_v4',
+            contractName: 'con_pusd',
             methodName: 'approve',
             networkType: 'mainnet',
             kwargs: {
                 amount: parseFloat($("#guess").val()), 
-                to: 'con_pyusd_v4'
+                to: 'con_pusd'
             },
             stampLimit: 100,
         });
         document.dispatchEvent(new CustomEvent('lamdenWalletSendTx', {detail}));
     }
-    if($("#to").val() == "PYUSD"){
+    if($("#to").val() == "PUSD"){
         const detail = JSON.stringify({
             contractName: 'currency',
             methodName: 'approve',
             networkType: 'mainnet',
             kwargs: {
                 amount: parseFloat($("#guess").val()), 
-                to: 'con_pyusd_v4'
+                to: 'con_pusd'
             },
             stampLimit: 100,
         });
