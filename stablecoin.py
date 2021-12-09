@@ -8,17 +8,16 @@
 # No Slippage Stablecoin Swap available at TODO: insert link here !!!
 
 import currency as tau
-import con_rocketswap_official_v1_1 as rocketswap
+
+I = importlib
 
 balances = Hash(default_value=0)
+allowances = Hash(default_value=0)
+
 metadata = Hash()
-
-
-prices = ForeignHash(foreign_contract='con_rocketswap_official_v1_1', foreign_name='prices')
 
 dev_tax = Variable()
 liquidity_tax = Variable()
-
 dev_address = Variable()
 total_supply = Variable()
 
@@ -28,88 +27,122 @@ def seed():
     metadata['token_name'] = "Python USD"
     metadata['token_symbol'] = "PUSD"
     metadata['operator'] = ctx.caller
-
-    balances[ctx.caller] = 0
+    metadata['dex'] = 'con_rocketswap_official_v1_1'
+    metadata['lusd'] = 'con_lusd_lst001'
 
     dev_tax.set(1)
-    dev_address.set('6a9004cbc570592c21879e5ee319c754b9b7bf0278878b1cc21ac87eed0ee38d')
     liquidity_tax.set(1)
+    dev_address.set('pusd_devs')
     
     total_supply.set(0)
 
 @export
 def change_metadata(key: str, value: Any):
-    assert ctx.caller == metadata['operator'], 'Only operator can set metadata!'
     metadata[key] = value
+    assert_owner()
 
 @export
 def transfer(amount: float, to: str):
     assert amount > 0, 'Cannot send negative balances!'
     assert balances[ctx.caller] >= amount, 'Not enough coins to send!'
+
     balances[ctx.caller] -= amount
     balances[to] += amount
 
 @export
 def approve(amount: float, to: str):
     assert amount > 0, 'Cannot send negative balances!'
-    balances[ctx.caller, to] += amount
+    
+    allowances[ctx.caller, to] += amount
 
 @export
 def transfer_from(amount: float, to: str, main_account: str):
     assert amount > 0, 'Cannot send negative balances!'
-    assert balances[main_account, ctx.caller] >= amount, 'Not enough coins approved to send! You have {} and are trying to spend {}'\
-        .format(balances[main_account, ctx.caller], amount)
+    assert allowances[main_account, ctx.caller] >= amount, f'You approved {allowances[main_account, ctx.caller]} but need {amount}'
     assert balances[main_account] >= amount, 'Not enough coins to send!'
-    balances[main_account, ctx.caller] -= amount
+    
+    allowances[main_account, ctx.caller] -= amount
     balances[main_account] -= amount
     balances[to] += amount
 
 @export
-def tau_to_pyusd(amount: float): 
+def tau_to_pusd(amount: float): 
     tau.transfer_from(amount=amount, to=ctx.this, main_account=ctx.caller)
-    tax_amount = ((amount / prices["con_lusd_lst001"]) / 100 * (dev_tax.get() + liquidity_tax.get()))
-    balances[ctx.caller] += ((amount / prices["con_lusd_lst001"]) - tax_amount)
+
+    prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
+
+    lusd_price = prices[metadata['lusd']]
+    tax_amount = ((amount / lusd_price) / 100 * (dev_tax.get() + liquidity_tax.get()))
+
+    balances[ctx.caller] += ((amount / lusd_price) - tax_amount)
     balances[dev_address.get()] += tax_amount / 2 
     balances[ctx.this] += tax_amount / 2 
-    total_supply.set(total_supply.get() + (amount / prices["con_lusd_lst001"])) 
-    if(tax_amount/2 > 5):
+    
+    total_supply.set(total_supply.get() + (amount / lusd_price))
+
+    if(tax_amount / 2 > 5):
         add_liquidity()
 
 @export
-def pyusd_to_tau(amount: float): 
+def pusd_to_tau(amount: float):
     tax_amount = (amount / 100 * (dev_tax.get() + liquidity_tax.get()))
     final_amount = amount - tax_amount
+
+    prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
+
+    tau.transfer(amount=final_amount * prices["con_lusd_lst001"], to=ctx.caller)
+    
     balances[ctx.caller] -= amount
     balances[dev_address.get()] += tax_amount / 2 
     balances[ctx.this] += tax_amount / 2 
-    total_supply.set(total_supply.get() - final_amount) 
-    tau.transfer(amount=final_amount*prices["con_lusd_lst001"], to=ctx.caller)
-    if(tax_amount/2 > 5):
+    
+    total_supply.set(total_supply.get() - final_amount)
+
+    if(tax_amount / 2 > 5):
         add_liquidity()
 
 @export
-def get_current_backing_ratio():
-    # > 1 = Good
-    return ((tau.balance_of(ctx.this) * (1 / prices["con_lusd_lst001"])) / circulating_supply())
-
+def get_current_backing_ratio():  # > 1 = Good
+    prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
+    return ((tau.balance_of(ctx.this) * (1 / prices[metadata['lusd']])) / circulating_supply())
 
 def add_liquidity():
-    token_amount = balances[ctx.this]
-    approve(amount=token_amount, to="con_rocketswap_official_v1_1")
-    tau_amount = rocketswap.sell(contract=ctx.this, token_amount=token_amount/2)
-    tau.approve(amount=tau_amount, to="con_rocketswap_official_v1_1")
-    rocketswap.add_liquidity(contract=ctx.this, currency_amount=tau_amount)
+    approve(amount=balances[ctx.this], to=metadata['dex'])
+    tau_amount = I.import_module(metadata['dex']).sell(contract=ctx.this, token_amount=balances[ctx.this] / 2)
 
+    tau.approve(amount=tau_amount, to=metadata['dex'])
+    I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=tau_amount)
 
 @export
-def emergency_backing_add(amount: float):
-    assert ctx.caller == metadata['operator'], 'Only operator can add emergency backing!'
-    tau.transfer_from(amount=amount, to=ctx.this, main_account=ctx.caller)
+def emergency_withdraw_tau(amount: float):
+    tau.transfer(amount=amount, to=ctx.caller, main_account=ctx.this)
+    assert_owner()
+
+@export
+def emergency_withdraw_pusd(amount: float):
+    assert amount > 0, 'Cannot send negative balances!'
+
+    balances[ctx.this] -= amount
+    balances[ctx.caller] += amount
+
+    assert_owner()
+
+@export
+def withdraw_dev_funds(amount: float):
+    assert amount > 0, 'Cannot send negative balances!'
+
+    balances[dev_address.get()] -= amount
+    balances[ctx.caller] += amount
+
+    assert_owner()
 
 @export
 def circulating_supply():
-    return (total_supply.get() - balances[ctx.this])
+    return f'{total_supply.get() - balances[ctx.this]}'
 
 @export
 def total_supply():
-    return (total_supply.get())
+    return f'{total_supply.get()}'
+
+def assert_owner():
+    assert ctx.caller == metadata['operator'], 'Only executable by operators!'
