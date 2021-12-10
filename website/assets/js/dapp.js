@@ -5,7 +5,7 @@ const detail = JSON.stringify({
     appName: 'Python USD dApp',
     version: '1.0.0',
     logo: 'logo.png',
-    contractName: 'con_pusd',
+    contractName: 'con_pyusd_v4',
     networkType: 'mainnet',
 })
 
@@ -33,7 +33,7 @@ document.addEventListener('lamdenWalletInfo', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pusd/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pyusd_v4/balances?key=" + address
         ).done(function (data__) {
             $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
@@ -49,7 +49,7 @@ document.addEventListener('lamdenWalletInfo', (response) => {
             );
             //Refresh Reserve
         $.get(
-            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pusd"
+            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pyusd_v4"
         ).done(function (data__) {
             reserve = data__["value"]["__fixed__"];
             $("#reserve").html(
@@ -57,7 +57,7 @@ document.addEventListener('lamdenWalletInfo', (response) => {
             );
             //Refresh Supply
             $.get(
-                "https://masternode-01.lamden.io/contracts/con_pusd/total_supply"
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v4/total_supply"
             ).done(function (data__) {
                 supply = data__["value"]["__fixed__"];
                 $("#pusd_issued").html(
@@ -88,7 +88,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         console.log(response);
         if($("#to").val() == "TAU"){
             const detail = JSON.stringify({
-                contractName: 'con_pusd',
+                contractName: 'con_pyusd_v4',
                 methodName: 'pyusd_to_tau',
                 networkType: 'mainnet',
                 kwargs: {
@@ -103,7 +103,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         }
         if($("#to").val() == "PUSD"){
             const detail = JSON.stringify({
-                contractName: 'con_pusd',
+                contractName: 'con_pyusd_v4',
                 methodName: 'tau_to_pyusd',
                 networkType: 'mainnet',
                 kwargs: {
@@ -134,7 +134,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pusd/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pyusd_v4/balances?key=" + address
         ).done(function (data__) {
             $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
@@ -142,7 +142,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pusd_v4/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pyusd_v4_v4/balances?key=" + address
         ).done(function (data__) {
             $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
@@ -158,7 +158,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
             );
             //Refresh Reserve
         $.get(
-            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pusd"
+            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pyusd_v4"
         ).done(function (data__) {
             reserve = data__["value"]["__fixed__"];
             $("#reserve").html(
@@ -166,7 +166,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
             );
             //Refresh Supply
             $.get(
-                "https://masternode-01.lamden.io/contracts/con_pusd/total_supply"
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v4/total_supply"
             ).done(function (data__) {
                 supply = data__["value"]["__fixed__"];
                 $("#pusd_issued").html(
@@ -250,12 +250,12 @@ $("#swap").click(function () {
     $("#swap").text("Swapping (Waiting for Transactions)..");
     if($("#to").val() == "TAU"){
         const detail = JSON.stringify({
-            contractName: 'con_pusd',
+            contractName: 'con_pyusd_v4',
             methodName: 'approve',
             networkType: 'mainnet',
             kwargs: {
                 amount: parseFloat($("#guess").val()), 
-                to: 'con_pusd'
+                to: 'con_pyusd_v4'
             },
             stampLimit: 100,
         });
@@ -268,7 +268,7 @@ $("#swap").click(function () {
             networkType: 'mainnet',
             kwargs: {
                 amount: parseFloat($("#guess").val()), 
-                to: 'con_pusd'
+                to: 'con_pyusd_v4'
             },
             stampLimit: 100,
         });

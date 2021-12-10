@@ -29,7 +29,7 @@
 								<li style="text-transform: uppercase;"><a href="#transparency" id="transparency-link"><span class="icon solid fa-glasses">Transparency</span></a></li>
 								<li style="text-transform: uppercase;"><a href="#fees" id="fees-link"><span class="icon solid fa-file-invoice-dollar">Fees</span></a></li>
 								<li style="text-transform: uppercase;"><a href="#difference" id="fees-link"><span class="icon solid fa-question">Difference LUSD / PUSD</span></a></li>
-								<li style="text-transform: uppercase;"><a href="#swap" id="external-link"><span class="icon solid fa-exchange-alt">Stable Swap</span></a></li>
+								<li style="text-transform: uppercase;"><a href="#swap_section" id="external-link"><span class="icon solid fa-exchange-alt">Stable Swap</span></a></li>
 								
 							</ul>
 						</nav>
@@ -63,7 +63,7 @@
 							</header>
 
 							<footer>
-								<a href="./dapp" class="button scrolly">Swap PUSD</a>
+								<a href="#swap_section" class="button scrolly">Swap PUSD</a>
 							</footer>
 
 						</div>
@@ -136,17 +136,54 @@
 
 						</div>
 					</section>
-					<section id="swap" class="two">
+					<section id="swap_section" class="two">
 						<div class="container">
 
 							<header>
 								<h2>Stable Swap</h2>
 							</header>
+							<a href="#" id="connect_wallet" onclick="return false;" class="button">Connect
+                            your Wallet</a><br><br>
+							<p class="text-center" id="connect-first-game">Please connect your Lamden wallet first..</p>
+							<div class="text-center pt-4 d-none container" id="game">
+                    <form>
+                        <div class="mb-3">
+                            <select class="form-select" id="from" aria-label="">
+                                <option value="TAU">TAU</option>
+                                <option value="PUSD">PUSD</option>
+                              </select><br>
+                            <input type="text" class="form-control" id="guess" aria-describedby="guess">
+                            
 
-							<p>Vitae natoque dictum etiam semper magnis enim feugiat convallis convallis
-							egestas rhoncus ridiculus in quis risus amet curabitur tempor orci penatibus.
-							Tellus erat mauris ipsum fermentum etiam vivamus eget. Nunc nibh morbi quis
-							fusce hendrerit lacus ridiculus.</p>
+                          </div>
+                          <div class="mb-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                          </svg>
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-select" id="to" aria-label="">
+                                <option value="PUSD">PUSD</option>
+                                <option value="TAU">TAU</option>
+                                
+                              </select><br>
+                          <input type="text" class="form-control" id="bet_amount" aria-describedby="betAmount">
+                          
+                          
+                        </div>
+                        <div class="mb-3">
+                            <div id="guessHelp" class="form-text" >You currently have <a href="#" id="tau_balance">loading..</a> TAU.</div>
+                            <div id="betAmountHelp" class="form-text">You currently have <a href="#" id="pusd_balance">loading..</a> PUSD.</div><br>
+                        <span class="form-text">Current Exchange Rate:</span> <b class="form-text" id="exchange_rate">loading..</b> <span class="form-text">TAU/USD</span><br>
+                        <span class="form-text">TAU Locked:</span> <b class="form-text" id="reserve">loading..</b> <span class="form-text">TAU</span><br>
+                        <span class="form-text">Backing Ratio:</span> <b class="form-text" id="backing_ratio">loading..</b> <span class="form-text"> (If over >= 1, its fully collateralized)</span><br>
+                        <span class="form-text">Current Supply:</span> <b class="form-text" id="pusd_issued">loading..</b> <span class="form-text">PUSD</span><br>
+                        <span class="form-text">Protocol Fee:</span> <b class="form-text">2%</b></span>
+                        <span class="form-text">Slippage:</span> <b class="form-text">0% (Fixed)</b></span>
+                    </div>
+                        <a href="#" id="swap" class="button">Swap</a>
+                      </form>
+                </div>
 
 							
 
@@ -176,6 +213,6 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-
+			<script src="assets/js/dapp.js"></script>
 	</body>
 </html>

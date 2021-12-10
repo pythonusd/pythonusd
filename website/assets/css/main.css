@@ -2650,3 +2650,9 @@ button:active,
 		background-position: 0% 50%;
 	}
 }
+.d-none{
+	display:none;
+}
+.d-block{
+	display:block;
+}
