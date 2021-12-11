@@ -132,7 +132,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) =>
         
         
     }
-    if (response.detail.data.resultInfo.title=="Transaction Successful" && response.detail.data.txInfo.methodName == "pyusd_to_tau" || response.detail.data.txInfo.methodName == "tau_to_pyusd" ){
+    if (response.detail.data.resultInfo.title=="Transaction Successful" && response.detail.data.txInfo.methodName == "pyusd_to_tau" || response.detail.data.resultInfo.title=="Transaction Successful" && response.detail.data.txInfo.methodName == "tau_to_pyusd" ){
         console.log(response);
         var supply = 0;
         var reserve = 0;
