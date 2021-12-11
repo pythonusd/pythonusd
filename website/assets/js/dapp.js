@@ -11,6 +11,11 @@ const detail = JSON.stringify({
 
 // 2. Wallet Event Listener
 document.addEventListener('lamdenWalletInfo', (response) => {
+    console.log(response);
+    if(response.detail.errors !== undefined){
+	    if(response.detail.errors[0] === "Wallet is Locked"){
+	$("#connect_wallet").text("Unlock your Lamden Wallet first");}
+    }
     if (response.detail.errors === undefined) {
         //Wallet is connected
         $("#connect_wallet").text("Connected");
@@ -224,7 +229,7 @@ $( "#to" ).change(function() {
     }
 });
 
-$( "#guess" ).change(function() {
+$( "#guess" ).keyup(function() {
     if($("#to").val() == "TAU"){
         $("#bet_amount").val(Number($("#guess").val() * $("#exchange_rate").text()).toFixed(8));
     }
@@ -233,7 +238,7 @@ $( "#guess" ).change(function() {
     }
 });
 
-$( "#bet_amount" ).change(function() {
+$( "#bet_amount" ).keyup(function() {
     if($("#to").val() == "TAU"){
         $("#guess").val(Number($("#bet_amount").val() / $("#exchange_rate").text()).toFixed(8));
     }
