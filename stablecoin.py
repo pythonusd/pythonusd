@@ -17,7 +17,9 @@ allowances = Hash(default_value=0)
 metadata = Hash()
 
 dev_tax = Variable()
+mint_tax = Variable()
 liquidity_tax = Variable()
+
 dev_address = Variable()
 total_supply = Variable()
 
@@ -31,9 +33,10 @@ def seed():
     metadata['lusd'] = 'con_lusd_lst001'
 
     dev_tax.set(1)
+    mint_tax.set(0.5)
     liquidity_tax.set(1)
+
     dev_address.set('pusd_devs')
-    
     total_supply.set(0)
 
 @export
@@ -72,11 +75,11 @@ def tau_to_pusd(amount: float):
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
 
     lusd_price = prices[metadata['lusd']]
-    tax_amount = ((amount / lusd_price) / 100 * (dev_tax.get() + liquidity_tax.get()))
+    tax_amount = ((amount / lusd_price) / 100 * (dev_tax.get() + liquidity_tax.get() + mint_tax.get()))
 
     balances[ctx.caller] += ((amount / lusd_price) - tax_amount)
     balances[dev_address.get()] += tax_amount / 2 
-    balances[ctx.this] += tax_amount / 2 
+    balances[ctx.this] += tax_amount / 2  # TODO: Check! 
     
     total_supply.set(total_supply.get() + (amount / lusd_price))
 
@@ -114,27 +117,34 @@ def add_liquidity():
     I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=tau_amount)
 
 @export
-def emergency_withdraw_tau(amount: float):
-    tau.transfer(amount=amount, to=ctx.caller, main_account=ctx.this)
+def migrate_tau(contract: str, amount: float):
+    tau.transfer(amount=amount, to=contract, main_account=ctx.this)
     assert_owner()
 
 @export
-def emergency_withdraw_pusd(amount: float):
+def migrate_pusd(contract: str, amount: float):
     assert amount > 0, 'Cannot send negative balances!'
+    assert balances[ctx.this] >= amount, 'Not enough coins to send!'
 
+    assert_owner()
     balances[ctx.this] -= amount
-    balances[ctx.caller] += amount
+    balances[contract] += amount
 
+@export
+def migrate_lp(contract: str, amount: float):
+    dex = I.import_module(metadata['dex'])
+    dex.approve_liquidity(ctx.this, contract, amount)
+    dex.transfer_liquidity(ctx.this, ctx.caller, amount)
     assert_owner()
 
 @export
 def withdraw_dev_funds(amount: float):
     assert amount > 0, 'Cannot send negative balances!'
-
-    balances[dev_address.get()] -= amount
-    balances[ctx.caller] += amount
+    assert balances[dev_address.get()] >= amount, 'Not enough coins to send!'
 
     assert_owner()
+    balances[dev_address.get()] -= amount
+    balances[ctx.caller] += amount
 
 @export
 def circulating_supply():
