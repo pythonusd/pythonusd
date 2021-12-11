@@ -81,10 +81,18 @@ document.addEventListener('lamdenWalletInfo', (response) => {
     }
 });
 
-document.addEventListener('lamdenWalletTxStatus', (response) => {
-    if (response.detail.data.resultInfo.type === 'error' && response.detail.data.resultInfo.errorInfo[0] != 'Transaction nonce is invalid.') {
+document.addEventListener('lamdenWalletTxStatus', (response) => 
+	{
+		if (response.detail.data.resultInfo.type === 'error' && response.detail.data.resultInfo.errorInfo[0] == 'Transaction nonce is invalid.') {
         console.log(response);
-        toastr.error(response.detail.data.resultInfo.errorInfo[1], 'Error!')
+        toastr.error(response.detail.data.resultInfo.errorInfo[0], 'Error!')
+        $("#swap").removeClass("disabled");
+        $("#swap").text("Swap");
+        return
+    }
+    if (response.detail.data.resultInfo.type === 'error' && response.detail.data.resultInfo.errorInfo[0] == 'Retry Attmpts 10 hit while checking for Tx Result.') {
+        console.log(response);
+        toastr.error(response.detail.data.resultInfo.errorInfo[0], 'Error!')
         $("#swap").removeClass("disabled");
         $("#swap").text("Swap");
         return
@@ -147,7 +155,7 @@ document.addEventListener('lamdenWalletTxStatus', (response) => {
         });
         //Refresh PYUSD Balance
         $.get(
-            "https://masternode-01.lamden.io/contracts/con_pyusd_v3_v4/balances?key=" + address
+            "https://masternode-01.lamden.io/contracts/con_pyusd_v3/balances?key=" + address
         ).done(function (data__) {
             $("#pusd_balance").html(
                 Number(data__["value"]["__fixed__"]).toFixed(8)
