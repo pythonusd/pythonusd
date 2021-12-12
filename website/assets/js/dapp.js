@@ -207,7 +207,34 @@ document.addEventListener('lamdenWalletTxStatus', (response) =>
 // 3. Dispatch Event on Page Load
 $(document).ready(function () {
     document.dispatchEvent(new CustomEvent('lamdenWalletGetInfo'));
-    
+   $.get(
+            "https://masternode-01.lamden.io/contracts/con_rocketswap_official_v1_1/prices?key=con_lusd_lst001"
+        ).done(function (data__) {
+            exchange_rate = data__["value"]["__fixed__"];
+           
+        //Refresh Reserve
+        $.get(
+            "https://masternode-01.lamden.io/contracts/currency/balances?key=con_pyusd_v3"
+        ).done(function (data__) {
+            reserve = data__["value"]["__fixed__"];
+            $("#transparency_locked").html(
+                Number(reserve).toLocaleString("en") + " TAU"
+            );
+            //Refresh Supply
+            $.get(
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v3/total_supply"
+            ).done(function (data__) {
+                supply = data__["value"]["__fixed__"];
+                $("#transparency_supply").html(
+                    Number(supply).toLocaleString("en") + " PYUSD"
+                );
+                $("#transparency_br").html(
+                    Number((reserve * (1 / exchange_rate)) / supply).toLocaleString("en")
+                );
+            });
+
+        });
+        }); 
 });
 
 // 4. Connect a Wallet Function
