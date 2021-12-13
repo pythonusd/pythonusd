@@ -207,6 +207,34 @@ document.addEventListener('lamdenWalletTxStatus', (response) =>
 // 3. Dispatch Event on Page Load
 $(document).ready(function () {
     document.dispatchEvent(new CustomEvent('lamdenWalletGetInfo'));
+    $.get(
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v3/liquidity_tax"
+            ).done(function (data__) {
+                lp_fee = data__["value"];
+                $("#fees_liquidity").html(
+                    Number(lp_fee).toLocaleString("en") + " %"
+                );
+                
+            });
+    
+    $.get(
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v3/dev_tax"
+            ).done(function (data__) {
+                dev_fee = data__["value"];
+                $("#fees_dev").html(
+                    Number(dev_fee).toLocaleString("en") + " %"
+                );
+                
+            });
+            $.get(
+                "https://masternode-01.lamden.io/contracts/con_pyusd_v3/mint_tax"
+            ).done(function (data__) {
+                mint_fee = data__["value"];
+                $("#fees_mint").html(
+                    Number(mint_fee).toLocaleString("en") + " %"
+                );
+                
+            });
    $.get(
             "https://masternode-01.lamden.io/contracts/con_rocketswap_official_v1_1/prices?key=con_lusd_lst001"
         ).done(function (data__) {
@@ -226,7 +254,7 @@ $(document).ready(function () {
             ).done(function (data__) {
                 supply = data__["value"]["__fixed__"];
                 $("#transparency_supply").html(
-                    Number(supply).toLocaleString("en") + " PYUSD"
+                    Number(supply).toLocaleString("en") + " PUSD"
                 );
                 $("#transparency_br").html(
                     Number((reserve * (1 / exchange_rate)) / supply).toLocaleString("en")
