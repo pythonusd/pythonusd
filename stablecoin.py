@@ -94,7 +94,7 @@ def tau_to_pusd(tau_amount: float):
     
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
     
-    price_change = ((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
+    price_change = abs((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
     
     if (price_change >= metadata['anti_manipulation_threshold']):
         dapp_state.set('inactive')
@@ -118,7 +118,7 @@ def pusd_to_tau(pusd_amount: float):
     
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
     
-    price_change = ((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
+    price_change = abs((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
     
     if (price_change >= metadata['anti_manipulation_threshold']):
         dapp_state.set('inactive')
