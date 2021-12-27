@@ -1,12 +1,10 @@
 # Python USD - Experimental Risky Lamden Fully Decentralized Stable Coin
-
 # Check collateralization TAU to PUSD by using get_current_backing_ratio()
 # !! If it's 1 everything is fine and if > 1.5 it's amazing and overcollateralized !!
 
 # You can exchange TAU to PUSD and PUSD to TAU at any point at the same ratio that LUSD-TAU is at using tau_to_pusd() or pusd_to_tau()
 # Don't forget to approve TAU to con_pusd or tau_to_pusd() exchange function doesn't work or just use the Swap dApp UI
 # Difference to LUSD is that PYUSD is collateralized by TAU on this chain instead of USDT
-
 # No Slippage Stablecoin Swap available at https://pusd.to
 
 import currency as tau
@@ -17,7 +15,6 @@ balances = Hash(default_value=0)
 allowances = Hash(default_value=0)
 metadata = Hash(default_value='')
 
-dev_address = Variable()
 total_supply = Variable()
 
 
@@ -27,17 +24,17 @@ def seed():
     metadata['token_symbol'] = "PUSD"
     metadata['dex'] = 'con_rocketswap_official_v1_1'
     metadata['lusd'] = 'con_lusd_lst001'
+    metadata['dev_addr'] = 'pusd_dev_addr'
 
-    metadata['dev_tax'] = 0.5
-    metadata['mint_tax'] = 0.5
-    metadata['liq_tax'] = 0.5
+    metadata['dev_tax'] = 0.5  # Developer tax
+    metadata['mnt_tax'] = 0.5  # Minting tax
+    metadata['liq_tax'] = 1  # Liquidity tax
 
     metadata['operators'] = [
         'ae7d14d6d9b8443f881ba6244727b69b681010e782d4fe482dbfb0b6aca02d5d',
         '6a9004cbc570592c21879e5ee319c754b9b7bf0278878b1cc21ac87eed0ee38d'
     ]
 
-    dev_address.set('pusd_devs')
     total_supply.set(0)
 
 @export
@@ -83,52 +80,52 @@ def transfer_from(amount: float, to: str, main_account: str):
     balances[to] += amount
 
 @export
-def tau_to_pusd(amount: float): 
-    tau.transfer_from(amount=amount, to=ctx.this, main_account=ctx.caller)
+def tau_to_pusd(tau_amount: float):
+    assert tau_amount > 0, 'Cannot send negative balances!'
+
+    dev_amount = tau_amount / 100 * metadata['dev_tax']
+    mnt_amount = tau_amount / 100 * metadata['mnt_tax']
+
+    tau.transfer_from(amount=tau_amount, to=ctx.this, main_account=ctx.caller)
+    tau.transfer(amount=dev_amount, to=metadata['dev_addr'])  # TODO: TEST
 
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
 
-    lusd_price = prices[metadata['lusd']]
-    tax_amount = ((amount / lusd_price) / 100 * (metadata['dev_tax'] + metadata['liq_tax'] + metadata['mint_tax']))
+    pusd_amount = (tau_amount / prices[metadata['lusd']]) - dev_amount - mnt_amount
 
-    balances[ctx.caller] += ((amount / lusd_price) - tax_amount)
-    balances[dev_address.get()] += tax_amount / 2 
-    balances[ctx.this] += tax_amount / 2  # TODO: Check! 
-    
-    total_supply.set(total_supply.get() + (amount / lusd_price))
-
-    if(tax_amount / 2 > 5):
-        add_liquidity()
+    balances[ctx.caller] += pusd_amount
+    total_supply.set(total_supply.get() + pusd_amount)
 
 @export
-def pusd_to_tau(amount: float):
-    tax_amount = (amount / 100 * (metadata['dev_tax'] + metadata['liq_tax']))
-    final_amount = amount - tax_amount
+def pusd_to_tau(pusd_amount: float):
+    assert pusd_amount > 0, 'Cannot send negative balances!'
 
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
 
-    tau.transfer(amount=final_amount * prices["con_lusd_lst001"], to=ctx.caller)
-    
-    balances[ctx.caller] -= amount
-    balances[dev_address.get()] += tax_amount / 2 
-    balances[ctx.this] += tax_amount / 2 
-    
-    total_supply.set(total_supply.get() - final_amount)
+    liq_amount = pusd_amount / 100 * metadata['liq_tax']
+    tau_amount = (pusd_amount - liq_amount) * prices[metadata['lusd']]
 
-    if(tax_amount / 2 > 5):
-        add_liquidity()
+    tau.transfer(amount=tau_amount, to=ctx.caller)
+    
+    balances[ctx.this] += liq_amount
+    balances[ctx.caller] -= pusd_amount
+    
+    total_supply.set(total_supply.get() - pusd_amount)
+
+    if liq_amount >= 10:
+        add_liquidity(liq_amount)
+
+def add_liquidity(pusd_amount: float):
+    approve(amount=pusd_amount, to=metadata['dex'])
+    tau_amount = I.import_module(metadata['dex']).sell(contract=ctx.this, token_amount=pusd_amount / 2)
+
+    tau.approve(amount=tau_amount, to=metadata['dex'])
+    I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=pusd_amount)
 
 @export
 def get_current_backing_ratio():  # > 1 = Good
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
     return ((tau.balance_of(ctx.this) * (1 / prices[metadata['lusd']])) / circulating_supply())
-
-def add_liquidity():
-    approve(amount=balances[ctx.this], to=metadata['dex'])
-    tau_amount = I.import_module(metadata['dex']).sell(contract=ctx.this, token_amount=balances[ctx.this] / 2)
-
-    tau.approve(amount=tau_amount, to=metadata['dex'])
-    I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=tau_amount)
 
 @export
 def migrate_tau(contract: str, amount: float):
@@ -160,11 +157,11 @@ def migrate_lp(contract: str, amount: float):
 @export
 def withdraw_dev_funds(amount: float):
     assert amount > 0, 'Cannot send negative balances!'
-    assert balances[dev_address.get()] >= amount, 'Not enough coins to send!'
+    assert balances[metadata['dev_addr']] >= amount, 'Not enough coins to send!'
 
     approved_action('withdraw_dev_funds', ctx.caller, amount)
 
-    balances[dev_address.get()] -= amount
+    balances[metadata['dev_addr']] -= amount
     balances[ctx.caller] += amount
     assert_owner()
 
