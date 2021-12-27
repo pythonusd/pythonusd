@@ -17,6 +17,9 @@ metadata = Hash(default_value='')
 
 total_supply = Variable()
 
+dapp_state = Variable()
+last_price = Variable()
+
 
 @construct
 def seed():
@@ -29,13 +32,18 @@ def seed():
     metadata['dev_tax'] = 0.5  # Developer tax
     metadata['mnt_tax'] = 0.5  # Minting tax
     metadata['liq_tax'] = 1  # Liquidity tax
+    metadata['anti_manipulation_threshold'] = 5
 
     metadata['operators'] = [
         'ae7d14d6d9b8443f881ba6244727b69b681010e782d4fe482dbfb0b6aca02d5d',
         '6a9004cbc570592c21879e5ee319c754b9b7bf0278878b1cc21ac87eed0ee38d'
     ]
+    
+    prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
 
     total_supply.set(0)
+    dapp_state.set('active')
+    last_price.set(prices[metadata['lusd']])
 
 @export
 def change_metadata(key: str, value: Any):
@@ -82,38 +90,51 @@ def transfer_from(amount: float, to: str, main_account: str):
 @export
 def tau_to_pusd(tau_amount: float):
     assert tau_amount > 0, 'Cannot send negative balances!'
-
-    dev_amount = tau_amount / 100 * metadata['dev_tax']
-    mnt_amount = tau_amount / 100 * metadata['mnt_tax']
-
-    tau.transfer_from(amount=tau_amount, to=ctx.this, main_account=ctx.caller)
-    tau.transfer(amount=dev_amount, to=metadata['dev_addr'])  # TODO: TEST
-
+    assert dapp_state.get() == 'active', 'The dapp is currently paused'
+    
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
+    
+    price_change = ((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
+    
+    if (price_change >= metadata['anti_manipulation_threshold']):
+        dapp_state.set('inactive')
+    else:
+        dev_amount = tau_amount / 100 * metadata['dev_tax']
+        mnt_amount = tau_amount / 100 * metadata['mnt_tax']
 
-    pusd_amount = (tau_amount / prices[metadata['lusd']]) - dev_amount - mnt_amount
+        tau.transfer_from(amount=tau_amount, to=ctx.this, main_account=ctx.caller)
+        tau.transfer(amount=dev_amount, to=metadata['dev_addr'])  # TODO: TEST
 
-    balances[ctx.caller] += pusd_amount
-    total_supply.set(total_supply.get() + pusd_amount)
+        pusd_amount = (tau_amount / prices[metadata['lusd']]) - dev_amount - mnt_amount
+
+        balances[ctx.caller] += pusd_amount
+        total_supply.set(total_supply.get() + pusd_amount)
+        last_price.set(prices[metadata['lusd']])
 
 @export
 def pusd_to_tau(pusd_amount: float):
     assert pusd_amount > 0, 'Cannot send negative balances!'
-
+    assert dapp_state.get() == 'active', 'The dapp is currently paused'
+    
     prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
-
-    liq_amount = pusd_amount / 100 * metadata['liq_tax']
-    tau_amount = (pusd_amount - liq_amount) * prices[metadata['lusd']]
-
-    tau.transfer(amount=tau_amount, to=ctx.caller)
     
-    balances[ctx.this] += liq_amount
-    balances[ctx.caller] -= pusd_amount
+    price_change = ((float(prices[metadata['lusd']])-last_price.get())/last_price.get())*100
     
-    total_supply.set(total_supply.get() - pusd_amount)
+    if (price_change >= metadata['anti_manipulation_threshold']):
+        dapp_state.set('inactive')
+    else:
+        liq_amount = pusd_amount / 100 * metadata['liq_tax']
+        tau_amount = (pusd_amount - liq_amount) * prices[metadata['lusd']]
 
-    if liq_amount >= 10:
-        add_liquidity(liq_amount)
+        tau.transfer(amount=tau_amount, to=ctx.caller)
+
+        balances[ctx.this] += liq_amount
+        balances[ctx.caller] -= pusd_amount
+
+        total_supply.set(total_supply.get() - pusd_amount)
+        last_price.set(prices[metadata['lusd']])
+        if liq_amount >= 10:
+            add_liquidity(liq_amount)
 
 def add_liquidity(pusd_amount: float):
     approve(amount=pusd_amount, to=metadata['dex'])
@@ -121,6 +142,11 @@ def add_liquidity(pusd_amount: float):
 
     tau.approve(amount=tau_amount, to=metadata['dex'])
     I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=pusd_amount)
+
+@export
+def unpause_dapp():
+    dapp_state.set('active')
+    assert_owner()
 
 @export
 def get_current_backing_ratio():  # > 1 = Good
