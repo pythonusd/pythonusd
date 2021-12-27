@@ -145,6 +145,8 @@ def add_liquidity(pusd_amount: float):
 
 @export
 def unpause_dapp():
+    prices = ForeignHash(foreign_contract=metadata['dex'], foreign_name='prices')
+    last_price.set(prices[metadata['lusd']])
     dapp_state.set('active')
     assert_owner()
 
