@@ -29,10 +29,10 @@ def seed():
     metadata['lusd'] = 'con_lusd_lst001'
     metadata['dev_addr'] = 'pusd_dev_addr'
 
-    metadata['dev_tax'] = 0.5  # Developer tax
-    metadata['mnt_tax'] = 0.5  # Minting tax
-    metadata['liq_tax'] = 1  # Liquidity tax
-    metadata['anti_manipulation_threshold'] = 5
+    metadata['dev_tax'] = 1  # Developer tax
+    metadata['mnt_tax'] = 1  # Minting tax
+    metadata['liq_tax'] = 2  # Liquidity tax
+    metadata['anti_manipulation_threshold'] = 7
 
     metadata['operators'] = [
         'ae7d14d6d9b8443f881ba6244727b69b681010e782d4fe482dbfb0b6aca02d5d',
