@@ -27,7 +27,7 @@ def seed():
     metadata['token_symbol'] = "PUSD"
     metadata['dex'] = 'con_rocketswap_official_v1_1'
     metadata['lusd'] = 'con_lusd_lst001'
-    metadata['dev_addr'] = 'pusd_dev_addr'
+    metadata['dev_addr'] = 'b561090f790569de8cce8f614ebcd2e8c75e2301a027e36159b734b390d39752'
 
     metadata['dev_tax'] = 1  # Developer tax
     metadata['mnt_tax'] = 1  # Minting tax
@@ -180,17 +180,6 @@ def migrate_lp(contract: str, amount: float):
     dex = I.import_module(metadata['dex'])
     dex.approve_liquidity(ctx.this, contract, amount)
     dex.transfer_liquidity(ctx.this, contract, amount)
-    assert_owner()
-
-@export
-def withdraw_dev_funds(amount: float):
-    assert amount > 0, 'Cannot send negative balances!'
-    assert balances[metadata['dev_addr']] >= amount, 'Not enough coins to send!'
-
-    approved_action('withdraw_dev_funds', ctx.caller, amount)
-
-    balances[metadata['dev_addr']] -= amount
-    balances[ctx.caller] += amount
     assert_owner()
 
 def approved_action(action: str, contract: str, amount: float):
