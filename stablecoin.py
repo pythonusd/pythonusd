@@ -1,9 +1,4 @@
-# Python USD - Experimental Risky Lamden Fully Decentralized Stable Coin
-# Check collateralization TAU to PUSD by using get_current_backing_ratio()
-# !! If it's 1 everything is fine and if > 1.5 it's amazing and overcollateralized !!
-
-# You can exchange TAU to PUSD and PUSD to TAU at any point at the same ratio that LUSD-TAU is at using tau_to_pusd() or pusd_to_tau()
-# Don't forget to approve TAU to con_pusd or tau_to_pusd() exchange function doesn't work or just use the Swap dApp UI
+# Python USD - Lamden Fully Decentralized Stable Coin
 # Difference to LUSD is that PYUSD is collateralized by TAU on this chain instead of USDT
 # No Slippage Stablecoin Swap available at https://pusd.to
 
