@@ -1,5 +1,5 @@
 # Python USD - Lamden Fully Decentralized Stable Coin
-# Difference to LUSD is that PYUSD is collateralized by TAU on this chain instead of USDT
+# Difference to LUSD is that PUSD is collateralized by TAU on this chain instead of USDT
 # No Slippage Stablecoin Swap available at https://pusd.to
 
 import currency as tau
@@ -100,7 +100,7 @@ def tau_to_pusd(tau_amount: float):
         tau.transfer_from(amount=tau_amount, to=ctx.this, main_account=ctx.caller)
         tau.transfer(amount=dev_amount, to=metadata['dev_addr'])  # TODO: TEST
 
-        pusd_amount = (tau_amount / prices[metadata['lusd']]) - dev_amount - mnt_amount
+        pusd_amount = ((tau_amount - dev_amount - mnt_amount) / prices[metadata['lusd']])
 
         balances[ctx.caller] += pusd_amount
         total_supply.set(total_supply.get() + pusd_amount)
