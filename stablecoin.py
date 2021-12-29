@@ -45,16 +45,20 @@ def change_metadata(key: str, value: Any):
     assert key.lower() != 'operators', 'Can not change owners'
     assert value, 'Parameter "value" can not be empty'
 
-    metadata[key][ctx.caller] = value
+    metadata[key, ctx.caller] = value
 
     owner1 = metadata['operators'][0]
     owner2 = metadata['operators'][1]
 
-    if metadata[key][owner1] == metadata[key][owner2]:
+    owner1_metadata_change = metadata[key, owner1]
+    owner2_metadata_change = metadata[key, owner2]
+    
+
+    if owner1_metadata_change == owner2_metadata_change:
         metadata[key] = value
 
-        metadata[key][owner1] = ''
-        metadata[key][owner2] = ''
+        metadata[key, owner1] = ''
+        metadata[key, owner2] = ''
     
     assert_owner()
 
