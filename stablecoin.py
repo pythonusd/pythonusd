@@ -98,7 +98,7 @@ def tau_to_pusd(tau_amount: float):
         mnt_amount = tau_amount / 100 * metadata['mnt_tax']
 
         tau.transfer_from(amount=tau_amount, to=ctx.this, main_account=ctx.caller)
-        tau.transfer(amount=dev_amount, to=metadata['dev_addr'])  # TODO: TEST
+        tau.transfer(amount=dev_amount, to=metadata['dev_addr'])
 
         pusd_amount = ((tau_amount - dev_amount - mnt_amount) / prices[metadata['lusd']])
 
