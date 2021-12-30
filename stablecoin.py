@@ -140,7 +140,7 @@ def add_liquidity(pusd_amount: float):
     tau_amount = I.import_module(metadata['dex']).sell(contract=ctx.this, token_amount=pusd_amount / 2)
 
     tau.approve(amount=tau_amount, to=metadata['dex'])
-    I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=pusd_amount)
+    I.import_module(metadata['dex']).add_liquidity(contract=ctx.this, currency_amount=tau_amount)
 
 @export
 def unpause_dapp():
