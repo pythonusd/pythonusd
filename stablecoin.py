@@ -185,8 +185,11 @@ def approved_action(action: str, contract: str, amount: float):
     owner1 = metadata['operators'][0]
     owner2 = metadata['operators'][1]
 
-    assert metadata[action][owner1] == f'{contract}{amount}', f'Wrong metadata for {owner1}'
-    assert metadata[action][owner2] == f'{contract}{amount}', f'Wrong metadata for {owner2}'
+    owner1_action =  metadata[action, owner1]
+    owner2_action =  metadata[action, owner2]
+
+    assert owner1_action == f'{contract},{amount}', f'Wrong metadata for {owner1}'
+    assert owner2_action == f'{contract},{amount}', f'Wrong metadata for {owner2}'
 
 @export
 def circulating_supply():
